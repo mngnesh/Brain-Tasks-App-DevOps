@@ -1,0 +1,429 @@
+
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App\dist> ls
+
+
+    Directory: E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App\dist
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        18-05-2026     09:15                assets
+-a----        18-05-2026     09:15            617 index.html
+-a----        18-05-2026     09:15           1497 vite.svg
+
+
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App\dist> cd ..
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> docker build -t brain-tasks-app .
+ERROR: failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> docker build -t brain-tasks-app .
+[+] Building 2.3s (9/9) FINISHED                                                 docker:desktop-linux
+ => [internal] load build definition from Dockerfile                                             0.0s
+ => => transferring dockerfile: 225B                                                             0.0s
+ => [internal] load metadata for docker.io/library/nginx:alpine                                  2.1s
+ => [auth] library/nginx:pull token for registry-1.docker.io                                     0.0s
+ => [internal] load .dockerignore                                                                0.0s
+ => => transferring context: 2B                                                                  0.0s
+ => [internal] load build context                                                                0.0s
+ => => transferring context: 226B                                                                0.0s
+ => [1/3] FROM docker.io/library/nginx:alpine@sha256:7e8ff0a32da368869608f285124b4375b901401d88  0.0s
+ => => resolve docker.io/library/nginx:alpine@sha256:7e8ff0a32da368869608f285124b4375b901401d88  0.0s
+ => CACHED [2/3] COPY dist /usr/share/nginx/html                                                 0.0s
+ => CACHED [3/3] RUN sed -i 's/listen       80;/listen 3000;/g' /etc/nginx/conf.d/default.conf   0.0s
+ => exporting to image                                                                           0.1s
+ => => exporting layers                                                                          0.0s
+ => => exporting manifest sha256:70a7f182d87f0bf88e9813ce4371852ae3f502bcc8c94debceb766a962ab35  0.0s
+ => => exporting config sha256:6ac441f5bbc68cac78c1e8745b10e643c713415fd0028b8784c443f348d91ce1  0.0s
+ => => exporting attestation manifest sha256:b81e309e2ad60295b0debe85996132c397df9e023fa848cbfb  0.0s
+ => => exporting manifest list sha256:c997476c9f4501a0836a3761be4223cb662b29b9828ea76f603b98098  0.0s
+ => => naming to docker.io/library/brain-tasks-app:latest                                        0.0s
+ => => unpacking to docker.io/library/brain-tasks-app:latest                                     0.0s
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> docker run -d -p 3000:3000 --name brain-container brain-tasks-app
+1391bad99b40b987a112ae0a93d762716564ded499ba5a78383d1358b26fe79d
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> docker ps
+CONTAINER ID   IMAGE             COMMAND                  CREATED                  STATUS         PORTS                                         NAMES
+1391bad99b40   brain-tasks-app   "/docker-entrypoint.…"   Less than a second ago   Up 6 seconds   0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp   brain-container
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> aws configure
+AWS Access Key ID [****************Z5MW]: 
+AWS Secret Access Key [****************mUyw]: 
+Default region name [ap-south-1]:
+Default output format [json]:
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> aws ecr create-repository --repository-name brain-tasks-app --region ap-south-1
+
+aws: [ERROR]: An error occurred (RepositoryAlreadyExistsException) when calling the CreateRepository operation: The repository with name 'brain-tasks-app' already exists in the registry with id '391505362986'
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> aws ecr describe-repositories --repository-names brain-tasks-app --region ap-south-1
+{
+    "repositories": [
+        {
+            "repositoryArn": "arn:aws:ecr:ap-south-1:391505362986:repository/brain-tasks-app",
+            "registryId": "391505362986",
+            "repositoryName": "brain-tasks-app",
+            "repositoryUri": "391505362986.dkr.ecr.ap-south-1.amazonaws.com/brain-tasks-app",
+            "createdAt": "2026-05-23T18:58:32.194000+05:30",
+            "imageTagMutability": "MUTABLE",
+            "imageScanningConfiguration": {
+                "scanOnPush": false
+            },
+            "encryptionConfiguration": {
+                "encryptionType": "AES256"
+            }
+        }
+    ]
+}
+
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 391505362986.dkr.ecr.ap-south-1.amazonaws.com
+Login Succeeded
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> docker tag brain-tasks-app:latest 391505362986.dkr.ecr.ap-south-1.amazonaws.com/brain-tasks-app:latest
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> docker push 391505362986.dkr.ecr.ap-south-1.amazonaws.com/brain-tasks-app:latest
+The push refers to repository [391505362986.dkr.ecr.ap-south-1.amazonaws.com/brain-tasks-app]
+fbaed3f7fcbe: Layer already exists
+43f834d60d8a: Layer already exists
+5e4a4d079e1e: Layer already exists
+a5008f4a4b25: Layer already exists
+d465c6ca10bb: Pushed
+abaae85d1626: Layer already exists
+8573defd51ae: Layer already exists
+6a0ac1617861: Layer already exists
+de1b677d8c00: Layer already exists
+94d083cf706a: Layer already exists
+e654dbbbb9e1: Layer already exists
+latest: digest: sha256:c997476c9f4501a0836a3761be4223cb662b29b9828ea76f603b980986646b10 size: 856
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> eksctl version
+0.226.0
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> eksctl create cluster --name brain-tasks-cluster --region ap-south-1 --nodegroup-name brain-workers --node-type t3.medium --nodes 2
+2026-05-24 06:11:07 [ℹ]  eksctl version 0.226.0
+2026-05-24 06:11:07 [ℹ]  using region ap-south-1
+2026-05-24 06:11:07 [ℹ]  setting availability zones to [ap-south-1a ap-south-1c ap-south-1b]
+2026-05-24 06:11:07 [ℹ]  subnets for ap-south-1a - public:192.168.0.0/19 private:192.168.96.0/19
+2026-05-24 06:11:07 [ℹ]  subnets for ap-south-1c - public:192.168.32.0/19 private:192.168.128.0/19
+2026-05-24 06:11:07 [ℹ]  subnets for ap-south-1b - public:192.168.64.0/19 private:192.168.160.0/19
+2026-05-24 06:11:07 [ℹ]  nodegroup "brain-workers" will use "" [AmazonLinux2023/1.34]
+2026-05-24 06:11:07 [!]  Auto Mode will be enabled by default in an upcoming release of eksctl. This means managed node groups and managed networking add-ons will no longer be created by default. To maintain current behavior, explicitly set 'autoModeConfig.enabled: false' in your cluster configuration. Learn more: https://eksctl.io/usage/auto-mode/
+2026-05-24 06:11:07 [ℹ]  using Kubernetes version 1.34
+2026-05-24 06:11:07 [ℹ]  creating EKS cluster "brain-tasks-cluster" in "ap-south-1" region with managed nodes
+2026-05-24 06:11:07 [ℹ]  will create 2 separate CloudFormation stacks for cluster itself and the initial managed nodegroup
+2026-05-24 06:11:07 [ℹ]  if you encounter any issues, check CloudFormation console or try 'eksctl utils describe-stacks --region=ap-south-1 --cluster=brain-tasks-cluster'
+2026-05-24 06:11:07 [ℹ]  Kubernetes API endpoint access will use default of {publicAccess=true, privateAccess=false} for cluster "brain-tasks-cluster" in "ap-south-1"
+2026-05-24 06:11:07 [ℹ]  CloudWatch logging will not be enabled for cluster "brain-tasks-cluster" in "ap-south-1"
+2026-05-24 06:11:07 [ℹ]  you can enable it with 'eksctl utils update-cluster-logging --enable-types={SPECIFY-YOUR-LOG-TYPES-HERE (e.g. all)} --region=ap-south-1 --cluster=brain-tasks-cluster'
+2026-05-24 06:11:07 [ℹ]  default addons metrics-server, vpc-cni, kube-proxy, coredns were not specified, will install them as EKS addons
+2026-05-24 06:11:07 [ℹ]
+2 sequential tasks: { create cluster control plane "brain-tasks-cluster",
+    2 sequential sub-tasks: {
+        2 sequential sub-tasks: {
+            1 task: { create addons },
+            wait for control plane to become ready,
+        },
+        create managed nodegroup "brain-workers",
+    }
+}
+2026-05-24 06:11:07 [ℹ]  building cluster stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:11:08 [ℹ]  deploying stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:11:38 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:12:08 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:13:08 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:14:08 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:15:08 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:16:08 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:17:09 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:18:09 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:19:09 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:19:10 [!]  recommended policies were found for "vpc-cni" addon, but since OIDC is disabled on the cluster, eksctl cannot configure the requested permissions; the recommended way to provide IAM permissions for "vpc-cni" addon is via pod identity associations; after addon creation is completed, add all recommended policies to the config file, under `addon.PodIdentityAssociations`, and run `eksctl update addon`
+2026-05-24 06:19:10 [ℹ]  creating addon: vpc-cni
+2026-05-24 06:19:11 [ℹ]  successfully created addon: vpc-cni
+2026-05-24 06:19:11 [ℹ]  creating addon: kube-proxy
+2026-05-24 06:19:12 [ℹ]  successfully created addon: kube-proxy
+2026-05-24 06:19:12 [ℹ]  creating addon: coredns
+2026-05-24 06:19:12 [ℹ]  successfully created addon: coredns
+2026-05-24 06:21:13 [ℹ]  building managed nodegroup stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:21:13 [ℹ]  deploying stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:21:13 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:21:43 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:22:43 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:24:12 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:26:05 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:27:23 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:29:17 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:30:42 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:31:24 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:32:29 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:34:02 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:34:52 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:35:23 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:35:54 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:37:54 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:39:12 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:41:01 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:41:46 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:42:39 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:44:08 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:44:44 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:45:39 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:45:43 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:45:43 [!]  1 error(s) occurred and cluster hasn't been created properly, you may wish to check CloudFormation console
+2026-05-24 06:45:43 [ℹ]  to cleanup resources, run 'eksctl delete cluster --region=ap-south-1 --name=brain-tasks-cluster'
+2026-05-24 06:45:43 [✖]  exceeded max wait time for StackCreateComplete waiter
+Error: failed to create cluster "brain-tasks-cluster"
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> eksctl delete cluster --region=ap-south-1 --name=brain-tasks-cluster
+2026-05-24 06:46:20 [ℹ]  deleting EKS cluster "brain-tasks-cluster"
+2026-05-24 06:46:20 [ℹ]  will drain 0 unmanaged nodegroup(s) in cluster "brain-tasks-cluster"
+2026-05-24 06:46:20 [ℹ]  starting parallel draining, max in-flight of 1
+2026-05-24 06:46:20 [ℹ]  deleted 0 Fargate profile(s)
+2026-05-24 06:46:21 [✔]  kubeconfig has been updated
+2026-05-24 06:46:21 [ℹ]  cleaning up AWS load balancers created by Kubernetes objects of Kind Service, Ingress, or Gateway
+2026-05-24 06:46:22 [ℹ]
+2 sequential tasks: { delete nodegroup "brain-workers", delete cluster control plane "brain-tasks-cluster" [async]
+}
+2026-05-24 06:46:23 [ℹ]  will delete stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:46:23 [ℹ]  waiting for stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers" to get deleted
+2026-05-24 06:46:23 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:46:53 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:47:24 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:48:13 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:49:11 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:49:51 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:50:44 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:52:02 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:53:35 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:55:26 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 06:55:26 [ℹ]  will delete stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:55:27 [✔]  all cluster resources were deleted
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> eksctl create cluster --name brain-tasks-cluster --region ap-south-1 --nodegroup-name brain-workers --node-type t3.small --nodes 2 --managed
+2026-05-24 06:55:38 [ℹ]  eksctl version 0.226.0
+2026-05-24 06:55:38 [ℹ]  using region ap-south-1
+2026-05-24 06:55:38 [ℹ]  setting availability zones to [ap-south-1b ap-south-1a ap-south-1c]
+2026-05-24 06:55:38 [ℹ]  subnets for ap-south-1b - public:192.168.0.0/19 private:192.168.96.0/19
+2026-05-24 06:55:38 [ℹ]  subnets for ap-south-1a - public:192.168.32.0/19 private:192.168.128.0/19
+2026-05-24 06:55:38 [ℹ]  subnets for ap-south-1c - public:192.168.64.0/19 private:192.168.160.0/19
+2026-05-24 06:55:38 [ℹ]  nodegroup "brain-workers" will use "" [AmazonLinux2023/1.34]
+2026-05-24 06:55:38 [!]  Auto Mode will be enabled by default in an upcoming release of eksctl. This means managed node groups and managed networking add-ons will no longer be created by default. To maintain current behavior, explicitly set 'autoModeConfig.enabled: false' in your cluster configuration. Learn more: https://eksctl.io/usage/auto-mode/
+2026-05-24 06:55:38 [ℹ]  using Kubernetes version 1.34
+2026-05-24 06:55:38 [ℹ]  creating EKS cluster "brain-tasks-cluster" in "ap-south-1" region with managed nodes
+2026-05-24 06:55:38 [ℹ]  will create 2 separate CloudFormation stacks for cluster itself and the initial managed nodegroup
+2026-05-24 06:55:38 [ℹ]  if you encounter any issues, check CloudFormation console or try 'eksctl utils describe-stacks --region=ap-south-1 --cluster=brain-tasks-cluster'
+2026-05-24 06:55:38 [ℹ]  Kubernetes API endpoint access will use default of {publicAccess=true, privateAccess=false} for cluster "brain-tasks-cluster" in "ap-south-1"
+2026-05-24 06:55:38 [ℹ]  CloudWatch logging will not be enabled for cluster "brain-tasks-cluster" in "ap-south-1"
+2026-05-24 06:55:38 [ℹ]  you can enable it with 'eksctl utils update-cluster-logging --enable-types={SPECIFY-YOUR-LOG-TYPES-HERE (e.g. all)} --region=ap-south-1 --cluster=brain-tasks-cluster'
+2026-05-24 06:55:38 [ℹ]  default addons vpc-cni, kube-proxy, coredns, metrics-server were not specified, will install them as EKS addons
+2026-05-24 06:55:38 [ℹ]
+2 sequential tasks: { create cluster control plane "brain-tasks-cluster",
+    2 sequential sub-tasks: {
+        2 sequential sub-tasks: {
+            1 task: { create addons },
+            wait for control plane to become ready,
+        },
+        create managed nodegroup "brain-workers",
+    }
+}
+2026-05-24 06:55:38 [ℹ]  building cluster stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:55:38 [!]  1 error(s) occurred and cluster hasn't been created properly, you may wish to check CloudFormation console
+2026-05-24 06:55:38 [ℹ]  to cleanup resources, run 'eksctl delete cluster --region=ap-south-1 --name=brain-tasks-cluster'
+2026-05-24 06:55:38 [✖]  creating CloudFormation stack "eksctl-brain-tasks-cluster-cluster": operation error CloudFormation: CreateStack, https response error StatusCode: 400, RequestID: 95c93c6d-409b-4b24-ab07-44b58a288ae4, AlreadyExistsException: Stack [eksctl-brain-tasks-cluster-cluster] already exists
+Error: failed to create cluster "brain-tasks-cluster"
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> eksctl create cluster --name brain-tasks-cluster --region ap-south-1 --nodegroup-name brain-workers --node-type t3.small --nodes 2 --managed
+2026-05-24 06:58:15 [ℹ]  eksctl version 0.226.0
+2026-05-24 06:58:15 [ℹ]  using region ap-south-1
+2026-05-24 06:58:15 [ℹ]  setting availability zones to [ap-south-1b ap-south-1c ap-south-1a]
+2026-05-24 06:58:15 [ℹ]  subnets for ap-south-1b - public:192.168.0.0/19 private:192.168.96.0/19
+2026-05-24 06:58:15 [ℹ]  subnets for ap-south-1c - public:192.168.32.0/19 private:192.168.128.0/19
+2026-05-24 06:58:15 [ℹ]  subnets for ap-south-1a - public:192.168.64.0/19 private:192.168.160.0/19
+2026-05-24 06:58:15 [ℹ]  nodegroup "brain-workers" will use "" [AmazonLinux2023/1.34]
+2026-05-24 06:58:15 [!]  Auto Mode will be enabled by default in an upcoming release of eksctl. This means managed node groups and managed networking add-ons will no longer be created by default. To maintain current behavior, explicitly set 'autoModeConfig.enabled: false' in your cluster configuration. Learn more: https://eksctl.io/usage/auto-mode/
+2026-05-24 06:58:15 [ℹ]  using Kubernetes version 1.34
+2026-05-24 06:58:15 [ℹ]  creating EKS cluster "brain-tasks-cluster" in "ap-south-1" region with managed nodes
+2026-05-24 06:58:15 [ℹ]  will create 2 separate CloudFormation stacks for cluster itself and the initial managed nodegroup
+2026-05-24 06:58:15 [ℹ]  if you encounter any issues, check CloudFormation console or try 'eksctl utils describe-stacks --region=ap-south-1 --cluster=brain-tasks-cluster'
+2026-05-24 06:58:15 [ℹ]  Kubernetes API endpoint access will use default of {publicAccess=true, privateAccess=false} for cluster "brain-tasks-cluster" in "ap-south-1"
+2026-05-24 06:58:15 [ℹ]  CloudWatch logging will not be enabled for cluster "brain-tasks-cluster" in "ap-south-1"
+2026-05-24 06:58:15 [ℹ]  you can enable it with 'eksctl utils update-cluster-logging --enable-types={SPECIFY-YOUR-LOG-TYPES-HERE (e.g. all)} --region=ap-south-1 --cluster=brain-tasks-cluster'
+2026-05-24 06:58:15 [ℹ]  default addons metrics-server, vpc-cni, kube-proxy, coredns were not specified, will install them as EKS addons
+2026-05-24 06:58:15 [ℹ]
+2 sequential tasks: { create cluster control plane "brain-tasks-cluster",
+    2 sequential sub-tasks: {
+        2 sequential sub-tasks: {
+            1 task: { create addons },
+            wait for control plane to become ready,
+        },
+        create managed nodegroup "brain-workers",
+    }
+}
+2026-05-24 06:58:15 [ℹ]  building cluster stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:58:16 [ℹ]  deploying stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:58:46 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 06:59:16 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 07:00:16 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 07:01:16 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 07:02:16 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 07:03:16 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 07:04:16 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 07:05:16 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 07:06:17 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-cluster"
+2026-05-24 07:06:18 [!]  recommended policies were found for "vpc-cni" addon, but since OIDC is disabled on the cluster, eksctl cannot configure the requested permissions; the recommended way to provide IAM permissions for "vpc-cni" addon is via pod identity associations; after addon creation is completed, add all recommended policies to the config file, under `addon.PodIdentityAssociations`, and run `eksctl update addon`
+2026-05-24 07:06:18 [ℹ]  creating addon: vpc-cni
+2026-05-24 07:06:18 [ℹ]  successfully created addon: vpc-cni
+2026-05-24 07:06:18 [ℹ]  creating addon: kube-proxy
+2026-05-24 07:06:19 [ℹ]  successfully created addon: kube-proxy
+2026-05-24 07:06:19 [ℹ]  creating addon: coredns
+2026-05-24 07:06:19 [ℹ]  successfully created addon: coredns
+2026-05-24 07:08:20 [ℹ]  building managed nodegroup stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 07:08:20 [ℹ]  deploying stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 07:08:20 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 07:08:50 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 07:09:32 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 07:11:09 [ℹ]  waiting for CloudFormation stack "eksctl-brain-tasks-cluster-nodegroup-brain-workers"
+2026-05-24 07:11:09 [ℹ]  waiting for the control plane to become ready
+2026-05-24 07:11:10 [✔]  saved kubeconfig as "C:\\Users\\bornx\\.kube\\config"
+2026-05-24 07:11:10 [ℹ]  no tasks
+2026-05-24 07:11:10 [✔]  all EKS cluster resources for "brain-tasks-cluster" have been created
+2026-05-24 07:11:10 [ℹ]  nodegroup "brain-workers" has 2 node(s)
+2026-05-24 07:11:10 [ℹ]  node "ip-192-168-11-61.ap-south-1.compute.internal" is ready
+2026-05-24 07:11:10 [ℹ]  node "ip-192-168-62-149.ap-south-1.compute.internal" is ready
+2026-05-24 07:11:10 [ℹ]  waiting for at least 2 node(s) to become ready in "brain-workers"
+2026-05-24 07:11:10 [ℹ]  nodegroup "brain-workers" has 2 node(s)
+2026-05-24 07:11:10 [ℹ]  node "ip-192-168-11-61.ap-south-1.compute.internal" is ready
+2026-05-24 07:11:10 [ℹ]  node "ip-192-168-62-149.ap-south-1.compute.internal" is ready
+2026-05-24 07:11:10 [✔]  created 1 managed nodegroup(s) in cluster "brain-tasks-cluster"
+2026-05-24 07:11:11 [ℹ]  creating addon: metrics-server
+2026-05-24 07:11:11 [ℹ]  successfully created addon: metrics-server
+2026-05-24 07:11:12 [ℹ]  kubectl command should work with "C:\\Users\\bornx\\.kube\\config", try 'kubectl get nodes'
+2026-05-24 07:11:12 [✔]  EKS cluster "brain-tasks-cluster" in "ap-south-1" region is ready
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> kubectl get nodes
+NAME                                            STATUS   ROLES    AGE     VERSION
+ip-192-168-11-61.ap-south-1.compute.internal    Ready    <none>   2m20s   v1.34.8-eks-3385e9b
+ip-192-168-62-149.ap-south-1.compute.internal   Ready    <none>   2m23s   v1.34.8-eks-3385e9b
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> kubectl apply -f deployment.yaml
+deployment.apps/brain-tasks-deployment created
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> kubectl apply -f service.yaml
+service/brain-tasks-service created
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> kubectl get pods
+NAME                                      READY   STATUS    RESTARTS   AGE
+brain-tasks-deployment-6dbb57c778-d5rgx   1/1     Running   0          18s
+brain-tasks-deployment-6dbb57c778-sgxdv   1/1     Running   0          18s
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> kubectl get svc
+NAME                  TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)        AGE
+brain-tasks-service   LoadBalancer   10.100.205.203   a7bc7c8241aa04c15a4b784902d14805-302711836.ap-south-1.elb.amazonaws.com   80:31862/TCP   26s
+kubernetes            ClusterIP      10.100.0.1       <none>                                                                    443/TCP        11m
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git init
+Reinitialized existing Git repository in E:/DevOps/Projects/Project I - Brain-Tasks-App/Brain-Tasks-App/.git/
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git remote -v
+origin  https://github.com/Vennilavanguvi/Brain-Tasks-App.git (fetch)
+origin  https://github.com/Vennilavanguvi/Brain-Tasks-App.git (push)
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git remote remove origin
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git remote add origin https://github.com/mngnesh/Brain-Tasks-App-DevOps.git
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git add .
+warning: in the working copy of 'package-lock.json', LF will be replaced by CRLF the next time Git touches it
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git commit -m "Added Docker, Kubernetes and CI/CD setup"git commit -m "Added Docker, Kubernetes and CI/CD setup"
+error: pathspec 'git' did not match any file(s) known to git
+error: pathspec 'commit' did not match any file(s) known to git
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git commit -m "Added Docker, Kubernetes and CI/CD setup"git commit -m "Added Docker, Kubernetes and CI/CD setup"
+error: pathspec 'git' did not match any file(s) known to git
+error: pathspec 'commit' did not match any file(s) known to git
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git commit -m "Added Docker, Kubernetes and CI/CD setup"
+[main f034dc7] Added Docker, Kubernetes and CI/CD setup
+ 5 files changed, 69 insertions(+)
+ create mode 100644 Dockerfile
+ create mode 100644 buildspec.yml
+ create mode 100644 deployment.yaml
+ create mode 100644 package-lock.json
+ create mode 100644 service.yaml
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git branch -M main
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git push -u origin main
+remote: Permission to mngnesh/Brain-Tasks-App-DevOps.git denied to bornxdeadbxd.
+fatal: unable to access 'https://github.com/mngnesh/Brain-Tasks-App-DevOps.git/': The requested URL returned error: 403
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git push -u origin main
+info: please complete authentication in your browser...
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git push -u origin main
+info: please complete authentication in your browser...
+To https://github.com/mngnesh/Brain-Tasks-App-DevOps.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/mngnesh/Brain-Tasks-App-DevOps.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git pull origin main --allow-unrelated-histories
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+Unpacking objects: 100% (3/3), 854 bytes | 8.00 KiB/s, done.
+From https://github.com/mngnesh/Brain-Tasks-App-DevOps
+ * branch            main       -> FETCH_HEAD
+ * [new branch]      main       -> origin/main
+Auto-merging README.md
+CONFLICT (add/add): Merge conflict in README.md
+Automatic merge failed; fix conflicts and then commit the result.
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git push -u origin main
+To https://github.com/mngnesh/Brain-Tasks-App-DevOps.git
+ ! [rejected]        main -> main (non-fast-forward)
+error: failed to push some refs to 'https://github.com/mngnesh/Brain-Tasks-App-DevOps.git'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. If you want to integrate the remote changes,
+hint: use 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git checkout --theirs README.md
+Updated 1 path from the index
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git add README.md
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git commit -m "Resolved README merge conflict"
+[main 327c9fd] Resolved README merge conflict
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> git push -u origin main
+Enumerating objects: 22, done.
+Counting objects: 100% (22/22), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (19/19), done.
+Writing objects: 100% (20/20), 103.40 KiB | 34.47 MiB/s, done.
+Total 20 (delta 1), reused 11 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (1/1), done.
+To https://github.com/mngnesh/Brain-Tasks-App-DevOps.git
+   9b43b26..327c9fd  main -> main
+branch 'main' set up to track 'origin/main'.
+PS E:\DevOps\Projects\Project I - Brain-Tasks-App\Brain-Tasks-App> aws elb describe-load-balancers --region ap-south-1
+{
+    "LoadBalancerDescriptions": [
+        {
+            "LoadBalancerName": "a7bc7c8241aa04c15a4b784902d14805",
+            "DNSName": "a7bc7c8241aa04c15a4b784902d14805-302711836.ap-south-1.elb.amazonaws.com",
+            "CanonicalHostedZoneName": "a7bc7c8241aa04c15a4b784902d14805-302711836.ap-south-1.elb.amazonaws.com",
+            "CanonicalHostedZoneNameID": "ZP97RAFLXTNZK",
+            "ListenerDescriptions": [
+                {
+                    "Listener": {
+                        "Protocol": "TCP",
+                        "LoadBalancerPort": 80,
+                        "InstanceProtocol": "TCP",
+                        "InstancePort": 31862
+                    },
+                    "PolicyNames": []
+                }
+            ],
+            "Policies": {
+                "AppCookieStickinessPolicies": [],
+                "LBCookieStickinessPolicies": [],
+                "OtherPolicies": []
+            },
+            "BackendServerDescriptions": [],
+            "AvailabilityZones": [
+                "ap-south-1c",
+                "ap-south-1b",
+                "ap-south-1a"
+            ],
+            "Subnets": [
+                "subnet-00e3339a0e54ea6a0",
+                "subnet-03784e5c9095fcd76",
+                "subnet-07bc8166c700170f1"
+            ],
+            "VPCId": "vpc-005b2958ea55af642",
+            "Instances": [
+                {
+                    "InstanceId": "i-0e941f60b902ea5e8"
+                },
+                {
+                    "InstanceId": "i-0f7691fc3b1daa351"
+                }
+            ],
+            "HealthCheck": {
+                "Target": "TCP:31862",
+                "Interval": 10,
+                "Timeout": 5,
+                "UnhealthyThreshold": 6,
+                "HealthyThreshold": 2
+-- More  --
